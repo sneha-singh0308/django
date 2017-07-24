@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from datetime import datetime
-from models import UserModel
-from form import SignUpForm
-from form import LoginForm
+from models import UserModel , SessionToken , PostModel
+from form import SignUpForm, LoginForm, PostForm
+from instaclone.settings import BASE_DIR
+
+from imgurpython import ImgurClient
 
 from django.contrib.auth.hashers import make_password, check_password
+
+YOUR_CLIENT_ID = "a6aafcb28ec79df"
+YOUR_CLIENT_SECRET = "d080ec60896f82ded7822335c1e42ecda3170efa"
+
 
 def signup_view(request):
     today = datetime.now()
@@ -42,7 +48,14 @@ def login_view(request):
             if user:
 
                 if check_password(password, user.password):
-                    print 'User is valid'
+                    token = SessionToken(user = user)
+                    token.create_token()
+                    token.save()
+                    response = redirect('feed/')
+                    response.set_cookie(key='session_token', value=token.session_token)
+                    return response
+
+
                 else:
                     print 'User is invalid'
 
@@ -50,3 +63,45 @@ def login_view(request):
         form = LoginForm()
 
     return render(request, 'login.html')
+
+
+
+
+def post_view(request):
+    user = check_validation(request)
+
+    if user:
+        if request.method == "GET":
+            form = PostForm()
+            return render(request, 'post.html', {'form' : form})
+
+        elif request.method == 'POST':
+            form = PostForm(request.POST, request.FILES)
+            if form.is_valid():
+                image = form.cleaned_data.get('image')
+                caption = form.cleaned_data.get('caption')
+                post = PostModel(user=user, image=image, caption=caption)
+                path = str(BASE_DIR  + post.image.url)
+                client = ImgurClient(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET)
+                post.image_url = client.upload_from_path(path, anon=True)['link']
+
+                post.save()
+    else:
+        return redirect('/login/')
+
+def feed_view(request):
+    user = check_validation(request)
+    if user:
+        posts = PostModel.objects.all().order_by('created_on')
+        return render(request, 'feed.html', {'posts': posts})
+    else:
+        return redirect('/login/')
+
+
+def check_validation(request):
+  if request.COOKIES.get('session_token'):
+    session = SessionToken.objects.filter(session_token=request.COOKIES.get('session_token')).first()
+    if session:
+      return session.user
+  else:
+    return None
