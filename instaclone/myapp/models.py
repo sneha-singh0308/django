@@ -28,6 +28,31 @@ class PostModel(models.Model):
   caption = models.CharField(max_length=240)
   created_on = models.DateTimeField(auto_now_add=True)
   updated_on = models.DateTimeField(auto_now=True)
+  has_liked = False
+
+  @property
+  def like_count(self):
+      return len(PostLikeModel.objects.filter(post=self))
+
+  @property
+  def comments(self):
+      return PostCommentModel.objects.filter(post=self).order_by('created_on')
+
+
+
+class PostLikeModel(models.Model):
+    user = models.ForeignKey(UserModel)
+    post = models.ForeignKey(PostModel)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+
+class PostCommentModel(models.Model):
+  user = models.ForeignKey(UserModel)
+  post = models.ForeignKey(PostModel)
+  comment_text = models.CharField(max_length=555)
+  created_on = models.DateTimeField(auto_now_add=True)
+  updated_on = models.DateTimeField(auto_now=True)
 
 
 
