@@ -3,11 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Instaclone</title>
+
+    <style>
+    body{
+    text-align:center;
+    background-color : #cccccc;
+    background-position: center;
+    color: black;
+    font-style : Times New Roman;
+    font-size: 20px;
+    }
+    input[type="submit"]
+    {
+    width: 10em;
+    height: 2em;
+    color: white;
+    background: orange;
+    border-radius: 8px;
+    }
+    </style>
 </head>
 <body>
 <div class="main">
-            <h1> Instagram Clone</h1>
-            <h3>Sign Up</h3>
+            <h1> Welcome to InstaClone</h1>
+            <h3>Register First!!</h3>
             <h4>{{today}}</h4>
           </div>
 
@@ -25,14 +44,24 @@
 
        <div>
            <label for="email">Email: </label>
-           <input id="email" type="text" name="email" value="{{email}}">
+           <input id="email" type="text" name="email" value="{{email}}" placeholder = "Eg: xyz@ymail.com">
        </div>
 
        <div>
            <label for="password">Password: </label>
            <input id="password" type="password" name="password" value="{{password}}">
        </div>
-           <input type="submit" value="Sign Up">
+
+
+    <input type="submit" value="Sign Up">
+    </form>
+
+
+
+
+<h5><i>Already a user??</i></h5>
+ <form action="/login/" method="get">
+        <input type="submit"  value="Login">
     </form>
 
 </body>

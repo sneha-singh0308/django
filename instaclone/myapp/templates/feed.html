@@ -3,15 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+
+    <style>
+    body{
+    text-align:center;
+    background-size: cover;
+    background-image: url();
+    background-position: center;
+    color: black;
+    font-size: 20px;
+    }
+    </style>
 </head>
 <body>
-
+<i>It's been a long time since you have posted something.</i>
+<form action="/post/" method="get">
+        <input type="submit"  value="Add Picture">
+    </form>
+<hr>
 
 {% for post in posts %}
-    <h4>Posted by: {{ post.user.username }} at {{post.created_on}} </h4>
+    <h4>Posted by: {{ post.user.username }} at {{ post.created_on }} </h4>
     <img src="{{ post.image_url }}" height=" 200px" width="300px" >
     <span>
-        <h3>{{ post.caption }}</h3>
+        <h3> {{ post.caption }} </h3>
     </span>
     <div style="display:inline-block">
         <h5>{{ post.like_count }} like this</h5>
@@ -49,10 +64,10 @@
 
       {% for comment in post.comments %}
 
-        <p>
-          {{ comment.user.username }}
-          {{ comment.created_on }}: {{ comment.comment_text }}
-        </p>
+        <p><h5>
+            <b>{{ comment.user.username }}</b> <i>commented on</i>
+          <b>{{ comment.created_on }}</b>: {{ comment.comment_text }}
+      </h5></p>
 
       {% endfor %}
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 from django.shortcuts import render,redirect
 from datetime import datetime
 from models import UserModel , SessionToken , PostModel, PostLikeModel, PostCommentModel
@@ -81,7 +82,7 @@ def post_view(request):
                 image = form.cleaned_data.get('image')
                 caption = form.cleaned_data.get('caption')
                 post = PostModel(user=user, image=image, caption=caption)
-                path = str(BASE_DIR  + "/" + post.image.url)
+                path = str(BASE_DIR +"/" +post.image.url)
                 print path
                 client = ImgurClient(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET)
                 post.image_url = client.upload_from_path(path, anon=True)['link']
@@ -95,7 +96,7 @@ def post_view(request):
 def feed_view(request):
     user = check_validation(request)
     if user:
-        posts = PostModel.objects.all().order_by('created_on')
+        posts = PostModel.objects.all().order_by('-created_on')
         return render(request, 'feed.html', {'posts': posts})
     else:
         return redirect('/login/')
@@ -106,7 +107,8 @@ def like_view(request):
         form = LikeForm(request.POST)
         if form.is_valid():
             post_id = form.cleaned_data.get('post').id
-            posts = PostModel.objects.all().order_by('-created_on' ,)
+            posts = PostModel.objects.all().order_by('-created_on')
+
             for post in posts:
 
                 existing_like = PostLikeModel.objects.filter(post_id=post_id, user=user).first()
