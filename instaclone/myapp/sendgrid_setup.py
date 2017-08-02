@@ -2,8 +2,8 @@ import sendgrid
 from sendgrid.helpers.mail import *
 
 def send_notification(user, comment_text):
-    my_client = sendgrid.SendGridAPIClient(apikey='SG')
-    # api_key : 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
+    my_client = sendgrid.SendGridAPIClient(apikey='X')
+
 
     from_email = Email("snirmla@gmail.com")
     to_email = Email("snehasingh95@gmail.com")
