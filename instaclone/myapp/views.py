@@ -7,10 +7,11 @@ from datetime import datetime
 from models import UserModel , SessionToken , PostModel, PostLikeModel, PostCommentModel
 from form import SignUpForm, LoginForm, PostForm, LikeForm, CommentForm
 from instaclone.settings import BASE_DIR
-
 from imgurpython import ImgurClient
-
+from clarifai_setup import get_keywords
 from django.contrib.auth.hashers import make_password, check_password
+from sendgrid_setup import send_notification
+import os
 
 YOUR_CLIENT_ID = "a6aafcb28ec79df"
 YOUR_CLIENT_SECRET = "d080ec60896f82ded7822335c1e42ecda3170efa"
@@ -82,10 +83,24 @@ def post_view(request):
                 image = form.cleaned_data.get('image')
                 caption = form.cleaned_data.get('caption')
                 post = PostModel(user=user, image=image, caption=caption)
-                path = str(BASE_DIR +"/" +post.image.url)
-                print path
-                client = ImgurClient(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET)
+                path = str(BASE_DIR +"/"  +post.image.url)
+
+                client = ImgurClient("a6aafcb28ec79df","d080ec60896f82ded7822335c1e42ecda3170efa")
                 post.image_url = client.upload_from_path(path, anon=True)['link']
+
+                # clarifai_response = get_keywords(post.image_url)
+                # array_dictionary = clarifai_response['outputs'][0]['data']['concept']
+                # for i in range(0,len(array_dictionary)):
+                #     key_word = array_dictionary[i]['name']
+                #     value = array_dictionary[i]['value']
+                #     if (key_word == "summer" or "outdoor pool" or "garden" or "mountains" and value >0.5):
+
+
+
+
+
+
+
 
                 post.save()
                 return redirect('/feed/')
@@ -115,6 +130,7 @@ def like_view(request):
                 if existing_like:
                     post.has_liked = True
 
+
                 if not existing_like:
                     PostLikeModel.objects.create(post_id=post_id, user=user)
                 else:
@@ -139,12 +155,27 @@ def comment_view(request):
       comment_text = form.cleaned_data.get('comment_text')
       comment = PostCommentModel.objects.create(user=user, post_id=post_id, comment_text=comment_text)
       comment.save()
+      send_notification(user, comment_text)
+
       return redirect('/feed/')
+
     else:
       return redirect('/feed/')
 
+
+
+
   else:
-    return redirect('/login')
+    return redirect('/login/')
+
+def logout_view(request):
+    user = check_validation(request)
+    if user is not None:
+        current_session = SessionToken.objects.filter(user = user).last()
+        if current_session:
+            current_session.delete()
+    return redirect('/login/')
+
 
 
 def check_validation(request):
